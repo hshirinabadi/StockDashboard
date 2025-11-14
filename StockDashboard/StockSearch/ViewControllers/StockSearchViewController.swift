@@ -55,7 +55,10 @@ class StockSearchViewController: UIViewController {
         
         searchView.selectSymbolBlock = { [weak self] index in
             guard let self = self, index < self.viewModel.viewState.symbols.count else { return }
-            // Add navigation to stock detail page later
+            let selectedSymbol = self.viewModel.viewState.symbols[index]
+            let detailVC = StockDetailViewController(symbol: selectedSymbol.symbol)
+            detailVC.title = selectedSymbol.description
+            self.navigationController?.pushViewController(detailVC, animated: true)
         }
     }
 }

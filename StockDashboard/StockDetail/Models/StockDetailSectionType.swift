@@ -22,4 +22,19 @@ enum StockDetailSectionType: Int, CaseIterable {
         case .news: return "Latest News"
         }
     }
+    
+    var controller: StockDetailSectionController {
+        switch self {
+        case .header:
+            return StockDetailHeaderSectionController()
+        case .quote:
+            return StockDetailQuoteSectionController()
+        case .companyInfo:
+            return StockDetailCompanyInfoSectionController()
+        case .keyStats:
+            return StockDetailKeyStatsSectionController()
+        case .news:
+            return StockDetailNewsSectionController()
+        }
+    }
 }
