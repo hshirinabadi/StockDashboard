@@ -19,6 +19,7 @@ class StockDetailViewModel {
     
     private let stockService: StockServiceProtocol
     private var loadDataTask: Task<Void, Never>?
+    private var pollingTask: Task<Void, Never>?
     
     init(symbol: String, stockService: StockServiceProtocol = StockService()) {
         self.stockService = stockService
@@ -46,6 +47,27 @@ class StockDetailViewModel {
                 updateViewStateWithError(error.localizedDescription)
             }
         }
+    }
+    
+    // Can configure poll interval later depending on whether the market is open/closed
+    func startPricePolling(interval seconds: TimeInterval = 30) {
+        pollingTask?.cancel()
+        pollingTask = Task {
+            while !Task.isCancelled {
+                do {
+                    let quote = try await stockService.getQuote(for: viewState.symbol)
+                    updateQuoteOnly(quote)
+                } catch {
+                    // For now we ignore polling errors
+                }
+                try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+            }
+        }
+    }
+    
+    func stopPricePolling() {
+        pollingTask?.cancel()
+        pollingTask = nil
     }
     
     private func updateViewStateWithResults(_ quote: Quote, _ profile: CompanyProfile, _ news: [NewsArticle]) {
