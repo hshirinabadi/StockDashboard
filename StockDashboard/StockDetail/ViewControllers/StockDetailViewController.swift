@@ -27,6 +27,16 @@ class StockDetailViewController: UIViewController {
         setupBindings()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.startPricePolling()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        viewModel.stopPricePolling()
+    }
+    
     private func setupUI() {
         view.backgroundColor = .systemBackground
         stockDetailView.translatesAutoresizingMaskIntoConstraints = false
