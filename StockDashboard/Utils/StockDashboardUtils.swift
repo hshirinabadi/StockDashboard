@@ -22,11 +22,11 @@ enum StockDashboardUtils {
     
     static func formatMarketCap(_ marketCap: Double) -> String {
         if marketCap >= 1_000_000 {
-            return "$\(String(format: "%.2f", marketCap / 1_000_000))B"
+            return "$\(String(format: "%.2f", marketCap / 1_000_000))T"
         } else if marketCap >= 1_000 {
-            return "$\(String(format: "%.2f", marketCap / 1_000))M"
+            return "$\(String(format: "%.2f", marketCap / 1_000))Ba"
         } else {
-            return "$\(String(format: "%.2f", marketCap))K"
+            return "$\(String(format: "%.2f", marketCap))M"
         }
     }
     
