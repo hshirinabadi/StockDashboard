@@ -15,6 +15,7 @@ class StockDetailView: UIView {
     private typealias DataSource = UICollectionViewDiffableDataSource<Section, Item>
     private typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Item>
     
+    // MARK: - UI Components
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionIndex, environment in
             guard let self = self, sectionIndex < self.currentSections.count else {
@@ -36,6 +37,7 @@ class StockDetailView: UIView {
         return collectionView
     }()
     
+    // MARK: - Properties
     private lazy var loadingStateView = LoadingStateView()
     private lazy var errorStateView = ErrorStateView()
     
@@ -50,6 +52,7 @@ class StockDetailView: UIView {
     
     private var cancellables = Set<AnyCancellable>()
     
+    // MARK: - Initialization
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -60,6 +63,7 @@ class StockDetailView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Public Methods
     func bind(to publisher: AnyPublisher<StockDetailViewState, Never>) {
         publisher
             .receive(on: RunLoop.main)
@@ -69,6 +73,7 @@ class StockDetailView: UIView {
             .store(in: &cancellables)
     }
     
+    // MARK: - Private Methods
     private func setupUI() {
         backgroundColor = .systemBackground
         

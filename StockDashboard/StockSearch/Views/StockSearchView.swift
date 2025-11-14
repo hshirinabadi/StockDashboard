@@ -13,7 +13,6 @@ typealias SearchViewDidSelectSymbolBlock = ((Int) -> Void)
 class StockSearchView: UIView {
     
     // MARK: - UI Components
-    
     private lazy var collectionView: UICollectionView = {
         var layoutConfig = UICollectionLayoutListConfiguration(appearance: .plain)
         layoutConfig.showsSeparators = false
@@ -49,7 +48,6 @@ class StockSearchView: UIView {
     }()
     
     // MARK: - Properties
-    
     var selectSymbolBlock: SearchViewDidSelectSymbolBlock?
     
     private var viewState: StockSearchViewState = .initial {
@@ -61,7 +59,6 @@ class StockSearchView: UIView {
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Initialization
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -72,7 +69,6 @@ class StockSearchView: UIView {
     }
     
     // MARK: - Public Methods
-    
     func bind(to viewStatePublisher: AnyPublisher<StockSearchViewState, Never>) {
         cancellables.removeAll()
         viewStatePublisher
@@ -84,7 +80,6 @@ class StockSearchView: UIView {
     }
     
     // MARK: - Private Methods
-    
     private func setupUI() {
         backgroundColor = .systemBackground
         
