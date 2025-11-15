@@ -6,7 +6,7 @@ A stock dashboard iOS application powered by the Finnhub.io API that allows user
 
 ## Screenshots/GIFs
 
-<img src="app_demo.gif" width="400" alt="App Demo" />
+<img src="app_demo.gif" width="300" alt="App Demo" />
 
 ## Features
 
