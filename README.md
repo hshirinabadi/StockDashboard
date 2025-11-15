@@ -4,9 +4,9 @@
 
 A stock dashboard iOS application powered by the Finnhub.io API that allows users to search for companies, view their current price data, see company profiles, and read the latest related articles.
 
-## Screenshots
+## Screenshots/GIFs
 
-[Add screenshots or GIFs of the app]
+![App Demo](app_demo.gif)
 
 ## Features
 
