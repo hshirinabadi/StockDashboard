@@ -68,6 +68,8 @@ class StockSearchViewModel {
         searchTask?.cancel()
         searchTask = Task {
             do {
+                try Task.checkCancellation()
+                
                 updateViewStateToLoading()
                 
                 try Task.checkCancellation()

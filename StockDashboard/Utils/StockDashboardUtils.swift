@@ -24,7 +24,7 @@ enum StockDashboardUtils {
         if marketCap >= 1_000_000 {
             return "$\(String(format: "%.2f", marketCap / 1_000_000))T"
         } else if marketCap >= 1_000 {
-            return "$\(String(format: "%.2f", marketCap / 1_000))Ba"
+            return "$\(String(format: "%.2f", marketCap / 1_000))B"
         } else {
             return "$\(String(format: "%.2f", marketCap))M"
         }
@@ -35,5 +35,24 @@ enum StockDashboardUtils {
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = Locale(identifier: "en_US_POSIX")
         return formatter.string(from: date)
+    }
+    
+    static func relativeTimeString(for date: Date) -> String {
+        let now = Date()
+        let seconds = Int(now.timeIntervalSince(date))
+        
+        if seconds < 60 {
+            return "Just now"
+        } else if seconds < 3600 {
+            let minutes = seconds / 60
+            return "\(minutes)m ago"
+        } else if seconds < 86_400 {
+            let hours = seconds / 3600
+            return "\(hours)h ago"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            return formatter.string(from: date)
+        }
     }
 }

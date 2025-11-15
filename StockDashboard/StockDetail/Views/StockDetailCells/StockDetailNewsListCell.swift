@@ -10,15 +10,43 @@ import UIKit
 class StockDetailNewsListCell: UICollectionViewCell {
     static let reuseIdentifier = "StockDetailNewsListCell"
     
-    private let stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 16
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
+    private lazy var container: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .secondarySystemBackground
+        view.layer.cornerRadius = 14
+        view.clipsToBounds = true
+        return view
     }()
     
-    private var imageTasks: [UIImageView: URLSessionDataTask] = [:]
+    private lazy var thumbnailImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.backgroundColor = .tertiarySystemFill
+        imageView.layer.cornerRadius = 12
+        return imageView
+    }()
+    
+    private lazy var headlineLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.numberOfLines = 4
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var metaLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 13)
+        label.textColor = .secondaryLabel
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private var articleURL: URL?
+    private var imageLoadTask: Task<Void, Never>?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -33,120 +61,92 @@ class StockDetailNewsListCell: UICollectionViewCell {
         contentView.backgroundColor = .systemBackground
         contentView.layer.cornerRadius = 8
         
-        contentView.addSubview(stackView)
-        
-        NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
-        ])
-    }
-    
-    func configure(with article: NewsArticle) {
-        stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        
-        let row = createRow(for: article)
-        stackView.addArrangedSubview(row)
-    }
-    
-    private func createRow(for article: NewsArticle) -> UIView {
-        let container = UIControl()
-        container.translatesAutoresizingMaskIntoConstraints = false
-        container.backgroundColor = .secondarySystemBackground
-        container.layer.cornerRadius = 14
-        container.clipsToBounds = true
-        
-        let thumbnailImageView = UIImageView()
-        thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
-        thumbnailImageView.contentMode = .scaleAspectFill
-        thumbnailImageView.clipsToBounds = true
-        thumbnailImageView.backgroundColor = .tertiarySystemFill
-        
-        let headlineLabel = UILabel()
-        headlineLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        headlineLabel.numberOfLines = 3
-        headlineLabel.translatesAutoresizingMaskIntoConstraints = false
-        headlineLabel.text = article.headline
-        
-        let metaLabel = UILabel()
-        metaLabel.font = UIFont.systemFont(ofSize: 13)
-        metaLabel.textColor = .secondaryLabel
-        metaLabel.translatesAutoresizingMaskIntoConstraints = false
-        metaLabel.text = "\(article.source) · \(relativeTimeString(for: article.date))"
+        contentView.addSubview(container)
         
         container.addSubview(headlineLabel)
         container.addSubview(metaLabel)
         container.addSubview(thumbnailImageView)
         
         NSLayoutConstraint.activate([
-            thumbnailImageView.topAnchor.constraint(equalTo: container.topAnchor, constant: 8),
-            thumbnailImageView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -8),
-            thumbnailImageView.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8),
-            thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor),
+            container.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
+            container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
             
-            headlineLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 14),
-            headlineLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            headlineLabel.trailingAnchor.constraint(equalTo: thumbnailImageView.leadingAnchor, constant: -14),
+            thumbnailImageView.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            thumbnailImageView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -12),
+            thumbnailImageView.widthAnchor.constraint(equalToConstant: 120),
+            thumbnailImageView.heightAnchor.constraint(equalToConstant: 120),
             
-            metaLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            metaLabel.trailingAnchor.constraint(lessThanOrEqualTo: thumbnailImageView.leadingAnchor, constant: -14),
-            metaLabel.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -14),
-            metaLabel.topAnchor.constraint(greaterThanOrEqualTo: headlineLabel.bottomAnchor, constant: 6),
+            headlineLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+            headlineLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
+            headlineLabel.trailingAnchor.constraint(equalTo: thumbnailImageView.leadingAnchor, constant: -12),
             
-            container.heightAnchor.constraint(greaterThanOrEqualToConstant: 120)
+            metaLabel.leadingAnchor.constraint(equalTo: headlineLabel.leadingAnchor),
+            metaLabel.trailingAnchor.constraint(lessThanOrEqualTo: thumbnailImageView.leadingAnchor, constant: -12),
+            metaLabel.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -10),
+            metaLabel.topAnchor.constraint(greaterThanOrEqualTo: headlineLabel.bottomAnchor, constant: 8)
         ])
         
-        if let urlString = article.image, let url = URL(string: urlString) {
-            loadImage(from: url, into: thumbnailImageView)
-        } else {
-            thumbnailImageView.image = nil
-        }
-        
-        container.addAction(UIAction { _ in
-            if let url = URL(string: article.url) {
-                UIApplication.shared.open(url)
-            }
-        }, for: .touchUpInside)
-        
-        return container
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        container.addGestureRecognizer(tapGesture)
+        container.isUserInteractionEnabled = true
     }
     
-    private func relativeTimeString(for date: Date) -> String {
-        let now = Date()
-        let seconds = Int(now.timeIntervalSince(date))
-        
-        if seconds < 60 {
-            return "Just now"
-        } else if seconds < 3600 {
-            let minutes = seconds / 60
-            return "\(minutes)m ago"
-        } else if seconds < 86_400 {
-            let hours = seconds / 3600
-            return "\(hours)h ago"
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            return formatter.string(from: date)
-        }
+    func configure(with article: NewsArticle) {
+        headlineLabel.text = article.headline
+        metaLabel.text = "\(article.source) · \(StockDashboardUtils.relativeTimeString(for: article.date))"
+        articleURL = URL(string: article.url)
+        loadImage(from: article.image)
     }
     
-    private func loadImage(from url: URL, into imageView: UIImageView) {
-        imageTasks[imageView]?.cancel()
-        imageView.image = nil
+    override func prepareForReuse() {
+        super.prepareForReuse()
         
-        let task = URLSession.shared.dataTask(with: url) { [weak self, weak imageView] data, _, _ in
-            guard let data = data, let image = UIImage(data: data), let imageView = imageView else { return }
+        imageLoadTask?.cancel()
+        imageLoadTask = nil
+        thumbnailImageView.image = nil
+        headlineLabel.text = nil
+        metaLabel.text = nil
+        articleURL = nil
+    }
+    
+    @objc
+    private func handleTap() {
+        guard let url = articleURL else { return }
+        UIApplication.shared.open(url)
+    }
+    
+    private func loadImage(from urlString: String?) {
+        imageLoadTask?.cancel()
+        imageLoadTask = nil
+        thumbnailImageView.image = nil
+
+        guard let urlString = urlString, let url = URL(string: urlString) else { return }
+
+        imageLoadTask = Task { [weak self] in
+            guard let self = self else { return }
             
-            DispatchQueue.main.async {
-                imageView.image = image
+            do {
+                try Task.checkCancellation()
+
+                let (data, _) = try await URLSession.shared.data(from: url)
+                
+                try Task.checkCancellation()
+                
+                guard let image = UIImage(data: data) else { return }
+                
+                await MainActor.run {
+                    if !Task.isCancelled {
+                        self.thumbnailImageView.image = image
+                    }
+                }
+            } catch is CancellationError {
+                return
+            } catch {
+                // Ignore image loading errors for now
             }
-            
-            self?.imageTasks[imageView] = nil
         }
-        
-        imageTasks[imageView] = task
-        task.resume()
     }
 }
 

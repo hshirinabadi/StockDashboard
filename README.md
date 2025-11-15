@@ -144,6 +144,7 @@ This project follows an MVVM architecture with a state-driven, reactive UI:
 - **Real-time updates**: Stock price updates use a simple polling mechanism; production would favor SSE or WebSockets for true real-time updates.
 - **Offline caching**: No local persistence layer; future work could add caching (e.g., Core Data or SQLite) to show last-known data when offline.
 - **AI insights**: The app does not currently provide AI-powered buy/hold/sell recommendations; this would be a natural next step using an LLM or on-device model.
+- **Price history chart**: A price change chart (e.g., 1D, 1W, 1M, 3M, etc.) was explored, but the free Finnhub API key does not provide access to the `/stock/candle` endpoint; adding this chart using a paid tier or alternate data source would be a future improvement.
 
 ## Open Source Libraries
 
