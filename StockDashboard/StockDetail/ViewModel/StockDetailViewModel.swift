@@ -17,6 +17,12 @@ class StockDetailViewModel {
         return $viewState.eraseToAnyPublisher()
     }
     
+    var quotePublisher: AnyPublisher<Quote?, Never> {
+        return $viewState
+            .map { $0.quote }
+            .eraseToAnyPublisher()
+    }
+    
     private let stockService: StockServiceProtocol
     private var loadDataTask: Task<Void, Never>?
     private var pollingTask: Task<Void, Never>?
@@ -29,7 +35,6 @@ class StockDetailViewModel {
     }
     
     func loadData() {
-        loadDataTask?.cancel()
         loadDataTask = Task {
             do {
                 let now = Date()
@@ -86,7 +91,6 @@ class StockDetailViewModel {
     private func updateQuoteOnly(_ quote: Quote) {
         var newState = viewState
         newState.quote = quote
-        newState.sections = makeSections(from: newState)
         viewState = newState
     }
     

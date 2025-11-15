@@ -14,8 +14,8 @@ A stock dashboard iOS application powered by the Finnhub.io API that allows user
 
 - **Stock Search**: Search for companies by name or ticker symbol with debounced queries.
 - **Stock Selection**: Selecting a result navigates to a dedicated dashboard for that company.
-- **Current Quote**: Display current price, daily percentage change, and intraday high/low prices.
-- **Company Profile & Key Stats**: Show company name, ticker, logo, industry, exchange, market cap, and P/E ratio (where available).
+- **Current Quote & Key Stats**: Display current price, daily percentage change, and intraday high/low prices.
+- **Company Profile**: Show company name, ticker, logo, industry, exchange, and market cap.
 - **Latest News**: View recent news articles with headline, source, date, and thumbnail.
 - **Open in Safari**: Tapping a news article opens it in Safari.
 
@@ -73,14 +73,14 @@ This project follows an MVVM architecture with a state-driven, reactive UI:
 - **Model**: Domain and API models that mirror Finnhub data and app domain concepts.
 - **ViewState**: Typed structs that represent a snapshot of all UI state for a screen and are mutated only inside the ViewModel.
 - **View**: Self-contained UI components that render purely from the current view state and bind to its publishers.
-- **ViewModel**: Single source of truth that owns view state, performs business logic and async work, and exposes state as publishers.
+- **ViewModel**: Single source of truth that owns view state, performs business logic, and exposes state as publishers.
 - **Controller**: Ultra-thin wiring layer responsible only for navigation and wiring views to view models.
 
 ### Reactive State Management
 
 - **Unidirectional data flow**: User interactions flow into the ViewModel; the ViewModel publishes updated state; Views render based on that state.
 - **Published state objects**: Observable state properties expose view state streams that Views can subscribe to.
-- **Combine-based bindings**: Views subscribe to ViewModel publishers; the View layer does not know about concrete ViewModel types.
+- **Combine-based bindings**: Views subscribe to ViewModel publisher.
 - **Async/await networking**: All network calls use Swift async/await with structured concurrency.
 - **Task lifecycle management**: Search requests and polling tasks are cancellable and tied to the screen lifecycle.
 - **Centralized view state**: Each screen has a single state object that drives all UI rendering and view sections.
@@ -120,16 +120,13 @@ This project follows an MVVM architecture with a state-driven, reactive UI:
 ### UI Implementation
 
 - Fully programmatic UI (no storyboards) using Auto Layout constraints.
-- Responsive layouts that adapt to different screen sizes.
 - Support for both light and dark mode via system colors.
-- Custom collection view cells for search results and detail sections with clear separation of concerns.
 - Pluggable section-based detail screen that composes header, quote, company info, key stats, and news.
 
 ### Search Experience
 
 - Debounced search queries (0.5s) to avoid spamming the API as the user types.
 - Cancellation of in-flight search requests when the query changes.
-- Modern collection-view-based results list with card-style presentation.
 
 ### Stock Detail Page
 

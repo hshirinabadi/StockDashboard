@@ -9,7 +9,7 @@ import UIKit
 
 class StockDetailViewController: UIViewController {
     
-    private let stockDetailView = StockDetailView()
+    private lazy var stockDetailView = StockDetailView()
     private let viewModel: StockDetailViewModel
     
     init(symbol: String) {
@@ -51,5 +51,6 @@ class StockDetailViewController: UIViewController {
     
     private func setupBindings() {
         stockDetailView.bind(to: viewModel.viewStatePublisher)
+        stockDetailView.bindQuote(to: viewModel.quotePublisher)
     }
 }

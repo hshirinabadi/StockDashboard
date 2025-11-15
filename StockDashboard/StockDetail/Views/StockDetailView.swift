@@ -43,6 +43,7 @@ class StockDetailView: UIView {
     
     private var dataSource: DataSource!
     private var currentSections: [Section] = []
+    private weak var quoteCell: StockDetailQuoteCell?
     
     private var viewState: StockDetailViewState = .initial(symbol: "") {
         didSet {
@@ -69,6 +70,16 @@ class StockDetailView: UIView {
             .receive(on: RunLoop.main)
             .sink { [weak self] state in
                 self?.viewState = state
+            }
+            .store(in: &cancellables)
+    }
+    
+    func bindQuote(to publisher: AnyPublisher<Quote?, Never>) {
+        publisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] quote in
+                guard let self, let quote = quote else { return }
+                self.updateQuote(quote)
             }
             .store(in: &cancellables)
     }
@@ -120,12 +131,18 @@ class StockDetailView: UIView {
             
             let sectionType = itemIdentifier.section
             
-            return sectionType.controller.configureCell(
+            let cell = sectionType.controller.configureCell(
                 collectionView: collectionView,
                 indexPath: indexPath,
                 item: itemIdentifier,
                 state: self.viewState
             )
+            
+            if sectionType == .quote, let quoteCell = cell as? StockDetailQuoteCell {
+                self.quoteCell = quoteCell
+            }
+            
+            return cell
         }
     }
     
@@ -165,11 +182,14 @@ class StockDetailView: UIView {
             snapshot.appendSections([section.type])
             snapshot.appendItems(section.items, toSection: section.type)
         }
-        
-        let allItems = state.sections.flatMap { $0.items }
-        snapshot.reconfigureItems(allItems)
-        
         dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    private func updateQuote(_ quote: Quote) {
+        guard let quoteCell else { return }
+        let exchange = viewState.companyProfile?.exchange
+        let currency = viewState.companyProfile?.currency
+        quoteCell.configure(quote: quote, exchange: exchange, currency: currency)
     }
 }
 
