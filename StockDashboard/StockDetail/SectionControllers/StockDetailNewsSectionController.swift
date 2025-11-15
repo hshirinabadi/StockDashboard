@@ -43,10 +43,17 @@ struct StockDetailNewsSectionController: StockDetailSectionController {
                 withReuseIdentifier: StockDetailNewsListCell.reuseIdentifier,
                 for: indexPath
             ) as! StockDetailNewsListCell
-            
+
             if let id = item.id as? Int,
                let article = state.news.first(where: { $0.id == id }) {
                 cell.configure(with: article)
+                cell.tapHandler = {
+                    if let url = URL(string: article.url) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+            } else {
+                cell.tapHandler = nil
             }
             return cell
         }

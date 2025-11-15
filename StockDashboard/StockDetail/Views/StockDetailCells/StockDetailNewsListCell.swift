@@ -45,7 +45,7 @@ class StockDetailNewsListCell: UICollectionViewCell {
         return label
     }()
     
-    private var articleURL: URL?
+    var tapHandler: (() -> Void)?
     private var imageLoadTask: Task<Void, Never>?
     
     override init(frame: CGRect) {
@@ -96,7 +96,6 @@ class StockDetailNewsListCell: UICollectionViewCell {
     func configure(with article: NewsArticle) {
         headlineLabel.text = article.headline
         metaLabel.text = "\(article.source) · \(StockDashboardUtils.relativeTimeString(for: article.date))"
-        articleURL = URL(string: article.url)
         loadImage(from: article.image)
     }
     
@@ -108,13 +107,12 @@ class StockDetailNewsListCell: UICollectionViewCell {
         thumbnailImageView.image = nil
         headlineLabel.text = nil
         metaLabel.text = nil
-        articleURL = nil
+        tapHandler = nil
     }
     
     @objc
     private func handleTap() {
-        guard let url = articleURL else { return }
-        UIApplication.shared.open(url)
+        tapHandler?()
     }
     
     private func loadImage(from urlString: String?) {
