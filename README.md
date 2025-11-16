@@ -1,5 +1,3 @@
-
-
 # Stock Dashboard
 
 A stock dashboard iOS application powered by the Finnhub.io API that allows users to search for companies, view their current price data, see company profiles, and read the latest related articles.
@@ -15,9 +13,10 @@ A stock dashboard iOS application powered by the Finnhub.io API that allows user
 - **Stock Search**: Search for companies by name or ticker symbol with debounced queries.
 - **Stock Selection**: Selecting a result navigates to a dedicated dashboard for that company.
 - **Current Quote & Key Stats**: Display current price, daily percentage change, and intraday high/low prices.
-- **Company Profile**: Show company name, ticker, logo, industry, exchange, and market cap.
+- **Company Profile**: Show company name, ticker, industry, exchange, and market cap.
 - **Latest News**: View recent news articles with headline, source, date, and thumbnail.
 - **Open in Safari**: Tapping a news article opens it in Safari.
+- **Real-Time Quote Updates**: Periodic polling of the latest quote while the detail screen is visible to keep the price and change in sync with the market.
 - **Offline Caching**: In-memory cache (with TTL and entry limit) that lets the detail screen show the last fetched quote/profile/news immediately while fresh data is loading.
 
 ## Setup Instructions
@@ -137,10 +136,10 @@ This project follows an MVVM architecture with a state-driven, reactive UI:
 
 ## Shortcuts and Future Improvements
 
-- **Testing**: No unit or UI tests are implemented; a production app would include comprehensive coverage (view models, services, and integration tests).
-- **Error handling UI**: Error states are functional but minimal; a real app would include more granular, localized error messages and retry flows.
+- **Testing**: No unit or UI tests are implemented; a production app would include comprehensive coverage.
+- **Error handling UI**: Error states are functional but minimal; a real app would include more granular error messages and retry flows.
 - **Real-time updates**: Stock price updates use a simple polling mechanism; production would favor SSE or WebSockets for true real-time updates.
-- **AI insights**: The app does not currently provide AI-powered buy/hold/sell recommendations; this would be a natural next step using an LLM or on-device model.
+- **AI insights**: Add AI-powered buy/hold/sell recommendations using an LLM as a future improvement.
 - **Price history chart**: A price change chart (e.g., 1D, 1W, 1M, 3M, etc.) was explored, but the free Finnhub API key does not provide access to the `/stock/candle` endpoint; adding this chart using a paid tier or alternate data source would be a future improvement.
 
 ## Open Source Libraries
