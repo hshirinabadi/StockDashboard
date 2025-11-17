@@ -14,11 +14,8 @@ final class OpenAIStockRecommendationService: StockRecommendationServiceProtocol
     private let model: String
     private let baseURL = "https://api.openai.com/v1/chat/completions"
     
-    init?(session: URLSession = .shared, model: String = "gpt-4.1-mini") {
-        guard let key = Configuration.openAIAPIKey else {
-            return nil
-        }
-        self.apiKey = key
+    init(session: URLSession = .shared, model: String = "gpt-4.1-mini") {
+        self.apiKey = Configuration.openAIAPIKey ?? ""
         self.session = session
         self.model = model
     }

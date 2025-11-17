@@ -18,7 +18,7 @@ A stock dashboard iOS application powered by the Finnhub.io API that allows user
 - **Open in Safari**: Tapping a news article opens it in Safari.
 - **Real-Time Quote Updates**: Periodic polling of the latest quote while the detail screen is visible to keep the price and change in sync with the market.
 - **Offline Caching**: In-memory cache (with TTL and entry limit) that lets the detail screen show the last fetched quote/profile/news immediately while fresh data is loading.
-- **AI Recommendation (optional)**: When an OpenAI API key is provided, the app calls an OpenAI model to generate a BUY/HOLD/SELL recommendation with confidence and rationale based on the current quote, company fundamentals, and recent news.
+- **AI Recommendation**: When an OpenAI API key is provided, the app calls an OpenAI model to generate a BUY/HOLD/SELL recommendation with confidence and rationale based on the current quote, company fundamentals, and recent news.
 
 ## Setup Instructions
 
@@ -63,7 +63,29 @@ export FINNHUB_API_KEY=your_api_key_here
 open StockDashboard.xcodeproj
 ```
 
-4. **Build and run** the application on the iOS Simulator or a physical device.
+4. **(Optional) Add your OpenAI API Key for AI recommendation**
+
+If you want to enable the AI-powered BUY/HOLD/SELL recommendation section on the stock detail screen, provide an OpenAI API key via the `OPENAI_API_KEY` environment variable:
+
+1. **Via Xcode Scheme (recommended)**  
+   - Open `Product` → `Scheme` → `Edit Scheme…`  
+   - Under `Run` → `Arguments`, add an Environment Variable:  
+     - Name: `OPENAI_API_KEY`  
+     - Value: `<your_openai_api_key_here>`
+
+2. **Via terminal environment**
+
+```bash
+# Set OpenAI key
+export OPENAI_API_KEY=your_openai_api_key_here
+
+# Then run Xcode
+open StockDashboard.xcodeproj
+```
+
+If `OPENAI_API_KEY` is not set, the AI recommendation section will not make any external calls and will render a simple “AI recommendation not available” state.
+
+5. **Build and run** the application on the iOS Simulator or a physical device.
 
 ## Architecture
 

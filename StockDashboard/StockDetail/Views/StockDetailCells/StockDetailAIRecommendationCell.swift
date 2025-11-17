@@ -65,6 +65,24 @@ class StockDetailAIRecommendationCell: UICollectionViewCell {
         return label
     }()
     
+    private lazy var headerStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [titleLabel, UIView(), badgeLabel])
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 8
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
+    private lazy var contentStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [headerStack, confidenceLabel, rationaleLabel, placeholderLabel, disclaimerLabel])
+        stack.axis = .vertical
+        stack.alignment = .fill
+        stack.spacing = 8
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -79,38 +97,16 @@ class StockDetailAIRecommendationCell: UICollectionViewCell {
         contentView.layer.cornerRadius = 14
         contentView.clipsToBounds = true
         
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(badgeLabel)
-        contentView.addSubview(confidenceLabel)
-        contentView.addSubview(rationaleLabel)
-        contentView.addSubview(placeholderLabel)
-        contentView.addSubview(disclaimerLabel)
+        contentView.addSubview(contentStack)
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            contentStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            contentStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            contentStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            contentStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
             
-            badgeLabel.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-            badgeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             badgeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 60),
-            badgeLabel.heightAnchor.constraint(equalToConstant: 24),
-            
-            confidenceLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            confidenceLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            confidenceLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16),
-            
-            rationaleLabel.topAnchor.constraint(equalTo: confidenceLabel.bottomAnchor, constant: 8),
-            rationaleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            rationaleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            
-            placeholderLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
-            placeholderLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            placeholderLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            
-            disclaimerLabel.topAnchor.constraint(equalTo: rationaleLabel.bottomAnchor, constant: 8),
-            disclaimerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            disclaimerLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            disclaimerLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
+            badgeLabel.heightAnchor.constraint(equalToConstant: 24)
         ])
     }
     
