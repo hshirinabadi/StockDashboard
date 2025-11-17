@@ -20,11 +20,20 @@ class StockDetailViewModel {
     var quotePublisher: AnyPublisher<Quote?, Never> {
         return $viewState
             .map { $0.quote }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+    
+    var recommendationPublisher: AnyPublisher<StockDetailViewState.RecommendationState, Never> {
+        return $viewState
+            .map { $0.recommendationState }
+            .removeDuplicates()
             .eraseToAnyPublisher()
     }
     
     private let symbol: String
     private let stockService: StockServiceProtocol
+    private let recommendationService: StockRecommendationServiceProtocol?
     private let cache: StockDetailCacheProtocol
     private var loadDataTask: Task<Void, Never>?
     private var pollingTask: Task<Void, Never>?
@@ -32,11 +41,13 @@ class StockDetailViewModel {
     init(
         symbol: String,
         stockService: StockServiceProtocol = StockService(),
-        cache: StockDetailCacheProtocol = InMemoryStockDetailCache.shared
+        cache: StockDetailCacheProtocol = InMemoryStockDetailCache.shared,
+        recommendationService: StockRecommendationServiceProtocol? = OpenAIStockRecommendationService()
     ) {
         self.symbol = symbol
         self.stockService = stockService
         self.cache = cache
+        self.recommendationService = recommendationService
         self.viewState = .initial(symbol: symbol)
         viewState.sections = makeSections(from: viewState)
         loadData()
@@ -60,6 +71,8 @@ class StockDetailViewModel {
                 
                 let (quote, profile, news) = try await (quoteTask, profileTask, newsTask)
                 updateViewStateWithResults(quote, profile, news)
+                
+                await loadRecommendationIfAvailable(quote: quote, profile: profile, news: news)
                 
                 cache.setCachedDetail(CachedStockDetail(
                     symbol: symbol,
@@ -98,6 +111,24 @@ class StockDetailViewModel {
         pollingTask = nil
     }
     
+    private func loadRecommendationIfAvailable(quote: Quote, profile: CompanyProfile, news: [NewsArticle]) async {
+        guard let recommendationService else { return }
+        var loadingState = viewState
+        loadingState.recommendationState = .loading
+        viewState = loadingState
+        do {
+            let recommendation = try await recommendationService.recommendation(
+                for: symbol,
+                quote: quote,
+                profile: profile,
+                news: news
+            )
+            updateViewStateWithRecommendation(recommendation: recommendation, error: nil)
+        } catch {
+            updateViewStateWithRecommendation(recommendation: nil, error: error)
+        }
+    }
+    
     private func updateViewStateWithResults(_ quote: Quote, _ profile: CompanyProfile, _ news: [NewsArticle]) {
         var newState = viewState
         newState.updateWithResults(quote, profile, news: news)
@@ -117,6 +148,12 @@ class StockDetailViewModel {
         viewState = newState
     }
     
+    private func updateViewStateWithRecommendation(recommendation: StockRecommendation?, error: Error?) {
+        var newState = viewState
+        newState.recommendationState = error == nil ? .loaded(recommendation!) : .failed(error!.localizedDescription)
+        viewState = newState
+    }
+    
     // MARK: - Section Management
     private func makeSections(from state: StockDetailViewState) -> [StockDetailSection] {
         var sections: [StockDetailSection] = []
@@ -132,6 +169,13 @@ class StockDetailViewModel {
             StockDetailSection(
                 type: .quote,
                 items: [StockDetailItem(section: .quote, id: "quote")]
+            )
+        )
+        
+        sections.append(
+            StockDetailSection(
+                type: .aiRecommendation,
+                items: [StockDetailItem(section: .aiRecommendation, id: "aiRecommendation")]
             )
         )
         

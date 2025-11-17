@@ -19,7 +19,7 @@ struct SymbolResult: Decodable {
     let type: String
 }
 
-struct Quote: Decodable {
+struct Quote: Decodable, Equatable {
     let currentPrice: Double
     let change: Double
     let percentChange: Double

@@ -44,6 +44,7 @@ class StockDetailView: UIView {
     private var dataSource: DataSource!
     private var currentSections: [Section] = []
     private weak var quoteCell: StockDetailQuoteCell?
+    private weak var recommendationCell: StockDetailAIRecommendationCell?
     
     private var viewState: StockDetailViewState = .initial(symbol: "") {
         didSet {
@@ -80,6 +81,15 @@ class StockDetailView: UIView {
             .sink { [weak self] quote in
                 guard let self, let quote = quote else { return }
                 self.updateQuote(quote)
+            }
+            .store(in: &cancellables)
+    }
+    
+    func bindRecommendation(to publisher: AnyPublisher<StockDetailViewState.RecommendationState, Never>) {
+        publisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] state in
+                self?.updateRecommendation(state)
             }
             .store(in: &cancellables)
     }
@@ -140,6 +150,12 @@ class StockDetailView: UIView {
             
             if sectionType == .quote, let quoteCell = cell as? StockDetailQuoteCell {
                 self.quoteCell = quoteCell
+                return cell
+            }
+            
+            if sectionType == .aiRecommendation, let aiCell = cell as? StockDetailAIRecommendationCell {
+                self.recommendationCell = aiCell
+                return cell
             }
             
             return cell
@@ -173,11 +189,12 @@ class StockDetailView: UIView {
     
     private func applySnapshot(for state: StockDetailViewState) {
         guard state.state == .loaded else { return }
-        
-        currentSections = state.sections.map { $0.type }
-        
+
+        let newSectionTypes = state.sections.map { $0.type }
+        guard newSectionTypes != currentSections else { return }
+        currentSections = newSectionTypes
+
         var snapshot = Snapshot()
-        
         for section in state.sections {
             snapshot.appendSections([section.type])
             snapshot.appendItems(section.items, toSection: section.type)
@@ -190,6 +207,12 @@ class StockDetailView: UIView {
         let exchange = viewState.companyProfile?.exchange
         let currency = viewState.companyProfile?.currency
         quoteCell.configure(quote: quote, exchange: exchange, currency: currency)
+    }
+    
+    private func updateRecommendation(_ state: StockDetailViewState.RecommendationState) {
+        guard let recommendationCell else { return }
+        recommendationCell.configure(state: state)
+        collectionView.collectionViewLayout.invalidateLayout()
     }
 }
 

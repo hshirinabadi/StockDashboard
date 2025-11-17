@@ -18,6 +18,7 @@ A stock dashboard iOS application powered by the Finnhub.io API that allows user
 - **Open in Safari**: Tapping a news article opens it in Safari.
 - **Real-Time Quote Updates**: Periodic polling of the latest quote while the detail screen is visible to keep the price and change in sync with the market.
 - **Offline Caching**: In-memory cache (with TTL and entry limit) that lets the detail screen show the last fetched quote/profile/news immediately while fresh data is loading.
+- **AI Recommendation (optional)**: When an OpenAI API key is provided, the app calls an OpenAI model to generate a BUY/HOLD/SELL recommendation with confidence and rationale based on the current quote, company fundamentals, and recent news.
 
 ## Setup Instructions
 
@@ -139,7 +140,6 @@ This project follows an MVVM architecture with a state-driven, reactive UI:
 - **Testing**: No unit or UI tests are implemented; a production app would include comprehensive coverage.
 - **Error handling UI**: Error states are functional but minimal; a real app would include more granular error messages and retry flows.
 - **Real-time updates**: Stock price updates use a simple polling mechanism; production would favor SSE or WebSockets for true real-time updates.
-- **AI insights**: Add AI-powered buy/hold/sell recommendations using an LLM as a future improvement.
 - **Price history chart**: A price change chart (e.g., 1D, 1W, 1M, 3M, etc.) was explored, but the free Finnhub API key does not provide access to the `/stock/candle` endpoint; adding this chart using a paid tier or alternate data source would be a future improvement.
 
 ## Open Source Libraries

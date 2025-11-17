@@ -52,5 +52,6 @@ class StockDetailViewController: UIViewController {
     private func setupBindings() {
         stockDetailView.bind(to: viewModel.viewStatePublisher)
         stockDetailView.bindQuote(to: viewModel.quotePublisher)
+        stockDetailView.bindRecommendation(to: viewModel.recommendationPublisher)
     }
 }

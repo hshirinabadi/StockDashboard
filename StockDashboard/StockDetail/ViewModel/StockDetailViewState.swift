@@ -12,12 +12,19 @@ struct StockDetailViewState {
         case error(message: String)
     }
     
+    enum RecommendationState: Equatable {
+        case loading
+        case loaded(StockRecommendation)
+        case failed(String)
+    }
+    
     var state: State
     var symbol: String
     var quote: Quote?
     var companyProfile: CompanyProfile?
     var sections: [StockDetailSection]
     var news: [NewsArticle]
+    var recommendationState: RecommendationState
     
     static func initial(symbol: String) -> StockDetailViewState {
         return StockDetailViewState(
@@ -26,7 +33,8 @@ struct StockDetailViewState {
             quote: nil,
             companyProfile: nil,
             sections: [],
-            news: []
+            news: [],
+            recommendationState: .loading
         )
     }
     

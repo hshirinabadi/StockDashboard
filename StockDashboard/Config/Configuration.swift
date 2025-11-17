@@ -15,6 +15,7 @@ enum Configuration {
     
     enum ConfigKey: String {
         case finnhubApiKey = "FINNHUB_API_KEY"
+        case openAIAPIKey = "OPENAI_API_KEY"
     }
     
     static func value<T>(for key: ConfigKey) throws -> T where T: LosslessStringConvertible {
@@ -33,8 +34,12 @@ enum Configuration {
         do {
             return try value(for: .finnhubApiKey)
         } catch {
-            assertionFailure("Missing Finnhub API Key: \(error)")
             return "MISSING_API_KEY"
         }
+    }
+    
+    static var openAIAPIKey: String? {
+        // OpenAI integration is optional
+        return ProcessInfo.processInfo.environment[ConfigKey.openAIAPIKey.rawValue]
     }
 }
