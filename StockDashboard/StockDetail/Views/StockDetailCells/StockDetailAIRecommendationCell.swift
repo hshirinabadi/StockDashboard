@@ -83,6 +83,15 @@ class StockDetailAIRecommendationCell: UICollectionViewCell {
         return stack
     }()
     
+    private lazy var container: UIView = {
+        let container = UIView()
+        container.backgroundColor = .secondarySystemBackground
+        container.layer.cornerRadius = 14
+        container.clipsToBounds = true
+        container.translatesAutoresizingMaskIntoConstraints = false
+        return container
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -93,17 +102,21 @@ class StockDetailAIRecommendationCell: UICollectionViewCell {
     }
     
     private func setupUI() {
-        contentView.backgroundColor = .secondarySystemBackground
-        contentView.layer.cornerRadius = 14
-        contentView.clipsToBounds = true
-        
-        contentView.addSubview(contentStack)
+        contentView.addSubview(container)
+        container.addSubview(contentStack)
         
         NSLayoutConstraint.activate([
-            contentStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            contentStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            contentStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            contentStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            container.topAnchor.constraint(equalTo: contentView.topAnchor),
+            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        ])
+        
+        NSLayoutConstraint.activate([
+            contentStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            contentStack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            contentStack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            contentStack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -10),
             
             badgeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 60),
             badgeLabel.heightAnchor.constraint(equalToConstant: 24)
