@@ -10,7 +10,7 @@ import Combine
 
 class StockSearchViewController: UIViewController {
     
-    private let searchController = UISearchController(searchResultsController: nil)
+    private let searchBarController = StockSearchBarController()
     private let searchView = StockSearchView()
 
     private let viewModel = StockSearchViewModel()
@@ -19,22 +19,14 @@ class StockSearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupSearchView()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationItem.searchController = searchController
+        setupBindings()
     }
     
     private func setupUI() {
         view.backgroundColor = .systemBackground
         title = "Stock Search"
         
-        searchController.searchResultsUpdater = self
-        searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Search companies or tickers"
-        navigationItem.searchController = searchController
+        navigationItem.searchController = searchBarController.searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
         
@@ -49,7 +41,7 @@ class StockSearchViewController: UIViewController {
         ])
     }
     
-    private func setupSearchView() {
+    private func setupBindings() {
         // Bind view to state
         searchView.bind(to: viewModel.viewStatePublisher)
         
@@ -60,17 +52,10 @@ class StockSearchViewController: UIViewController {
             detailVC.title = selectedSymbol.description
             self.navigationController?.pushViewController(detailVC, animated: true)
         }
+        
+        searchBarController.onSearchTextChanged = { [weak self] query in
+            self?.viewModel.setSearchQuery(query)
+        }
     }
 }
-
-// MARK: - UISearchResultsUpdating
-
-extension StockSearchViewController: UISearchResultsUpdating {
-    func updateSearchResults(for searchController: UISearchController) {
-        guard let searchText = searchController.searchBar.text else { return }
-        viewModel.setSearchQuery(searchText)
-    }
-}
-
-
 
