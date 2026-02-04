@@ -22,17 +22,15 @@ struct StockDetailViewState {
     var symbol: String
     var quote: Quote?
     var companyProfile: CompanyProfile?
-    var sections: [StockDetailSection]
     var news: [NewsArticle]
     var recommendationState: RecommendationState
-    
+
     static func initial(symbol: String) -> StockDetailViewState {
         return StockDetailViewState(
             state: .loading,
             symbol: symbol,
             quote: nil,
             companyProfile: nil,
-            sections: [],
             news: [],
             recommendationState: .loading
         )

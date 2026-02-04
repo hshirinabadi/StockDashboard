@@ -12,7 +12,7 @@ struct SymbolLookupResponse: Decodable {
     let result: [SymbolResult]
 }
 
-struct SymbolResult: Decodable {
+struct SymbolResult: Decodable, Hashable {
     let description: String
     let displaySymbol: String
     let symbol: String

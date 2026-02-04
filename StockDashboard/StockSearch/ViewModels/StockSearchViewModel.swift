@@ -9,16 +9,10 @@ import Foundation
 import Combine
 
 @MainActor
-class StockSearchViewModel {
+class StockSearchViewModel: ObservableObject {
    
-    @Published private(set) var viewState: StockSearchViewState = .initial
+    @Published private var viewState: StockSearchViewState = .initial
     @Published private var searchQuery = ""
-    
-    // Public publisher for the view state that views can subscribe to
-    var viewStatePublisher: AnyPublisher<StockSearchViewState, Never> {
-        return $viewState.eraseToAnyPublisher()
-    }
-    
     
     private var searchResults: [SymbolResult] = []
     

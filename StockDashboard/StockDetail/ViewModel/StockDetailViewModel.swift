@@ -6,30 +6,11 @@
 //
 
 import Foundation
-import Combine
 
 @MainActor
-class StockDetailViewModel {
+class StockDetailViewModel: ObservableObject {
     
     @Published private(set) var viewState: StockDetailViewState
-    
-    var viewStatePublisher: AnyPublisher<StockDetailViewState, Never> {
-        return $viewState.eraseToAnyPublisher()
-    }
-    
-    var quotePublisher: AnyPublisher<Quote?, Never> {
-        return $viewState
-            .map { $0.quote }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-    
-    var recommendationPublisher: AnyPublisher<StockDetailViewState.RecommendationState, Never> {
-        return $viewState
-            .map { $0.recommendationState }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
     
     private let symbol: String
     private let stockService: StockServiceProtocol
@@ -49,7 +30,6 @@ class StockDetailViewModel {
         self.cache = cache
         self.recommendationService = recommendationService
         self.viewState = .initial(symbol: symbol)
-        viewState.sections = makeSections(from: viewState)
         loadData()
     }
     
@@ -132,10 +112,9 @@ class StockDetailViewModel {
     private func updateViewStateWithResults(_ quote: Quote, _ profile: CompanyProfile, _ news: [NewsArticle]) {
         var newState = viewState
         newState.updateWithResults(quote, profile, news: news)
-        newState.sections = makeSections(from: newState)
         viewState = newState
     }
-    
+
     private func updateViewStateWithError(_ message: String) {
         var newState = viewState
         newState.updateWithError(message)
@@ -152,57 +131,5 @@ class StockDetailViewModel {
         var newState = viewState
         newState.recommendationState = error == nil ? .loaded(recommendation!) : .failed(error!.localizedDescription)
         viewState = newState
-    }
-    
-    // MARK: - Section Management
-    private func makeSections(from state: StockDetailViewState) -> [StockDetailSection] {
-        var sections: [StockDetailSection] = []
-        
-        sections.append(
-            StockDetailSection(
-                type: .header,
-                items: [StockDetailItem(section: .header, id: "header")]
-            )
-        )
-        
-        sections.append(
-            StockDetailSection(
-                type: .quote,
-                items: [StockDetailItem(section: .quote, id: "quote")]
-            )
-        )
-        
-        sections.append(
-            StockDetailSection(
-                type: .aiRecommendation,
-                items: [StockDetailItem(section: .aiRecommendation, id: "aiRecommendation")]
-            )
-        )
-        
-        sections.append(
-            StockDetailSection(
-                type: .companyInfo,
-                items: [StockDetailItem(section: .companyInfo, id: "companyInfo")]
-            )
-        )
-        
-        sections.append(
-            StockDetailSection(
-                type: .keyStats,
-                items: [StockDetailItem(section: .keyStats, id: "keyStats")]
-            )
-        )
-        
-        if !state.news.isEmpty {
-            var newsItems: [StockDetailItem] = [
-                StockDetailItem(section: .news, id: "newsHeader")
-            ]
-            newsItems += state.news.map {
-                StockDetailItem(section: .news, id: $0.id)
-            }
-            sections.append(StockDetailSection(type: .news, items: newsItems))
-        }
-        
-        return sections
     }
 }

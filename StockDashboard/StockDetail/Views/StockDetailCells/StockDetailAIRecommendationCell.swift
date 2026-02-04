@@ -1,168 +1,81 @@
 //
-//  StockDetailAIRecommendationCell.swift
+//  StockDetailAIRecommendationView.swift
 //  StockDashboard
 //
 //  Created by Hossein Shirinabadi on 11/16/25.
 //
 
-import UIKit
+import SwiftUI
 
-class StockDetailAIRecommendationCell: UICollectionViewCell {
-    static let reuseIdentifier = "StockDetailAIRecommendationCell"
-    
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-        label.text = "AI Insight"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let badgeLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-        label.textAlignment = .center
-        label.layer.cornerRadius = 6
-        label.clipsToBounds = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let confidenceLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 13)
-        label.textColor = .secondaryLabel
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let rationaleLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .label
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let placeholderLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 0
-        label.text = "Fetching AI-powered recommendation…"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let disclaimerLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 11)
-        label.textColor = .tertiaryLabel
-        label.numberOfLines = 0
-        label.text = "This AI-generated view is for informational purposes only and is not financial advice."
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var headerStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [titleLabel, UIView(), badgeLabel])
-        stack.axis = .horizontal
-        stack.alignment = .center
-        stack.spacing = 8
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        return stack
-    }()
-    
-    private lazy var contentStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [headerStack, confidenceLabel, rationaleLabel, placeholderLabel, disclaimerLabel])
-        stack.axis = .vertical
-        stack.alignment = .fill
-        stack.spacing = 8
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        return stack
-    }()
-    
-    private lazy var container: UIView = {
-        let container = UIView()
-        container.backgroundColor = .secondarySystemBackground
-        container.layer.cornerRadius = 14
-        container.clipsToBounds = true
-        container.translatesAutoresizingMaskIntoConstraints = false
-        return container
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupUI()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupUI() {
-        contentView.addSubview(container)
-        container.addSubview(contentStack)
-        
-        NSLayoutConstraint.activate([
-            container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-            container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-            container.topAnchor.constraint(equalTo: contentView.topAnchor),
-            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-        ])
-        
-        NSLayoutConstraint.activate([
-            contentStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
-            contentStack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            contentStack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            contentStack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -10),
-            
-            badgeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 60),
-            badgeLabel.heightAnchor.constraint(equalToConstant: 24)
-        ])
-    }
-    
-    func configure(state: StockDetailViewState.RecommendationState) {
-        switch state {
-        case .loading:
-            placeholderLabel.isHidden = false
-            placeholderLabel.text = "Fetching AI-powered recommendation…"
-            badgeLabel.isHidden = true
-            confidenceLabel.isHidden = true
-            rationaleLabel.isHidden = true
-            
-        case .failed(let message):
-            placeholderLabel.isHidden = false
-            placeholderLabel.text = "AI recommendation unavailable: \(message)"
-            badgeLabel.isHidden = true
-            confidenceLabel.isHidden = true
-            rationaleLabel.isHidden = true
-            
-        case .loaded(let recommendation):
-            placeholderLabel.isHidden = true
-            badgeLabel.isHidden = false
-            confidenceLabel.isHidden = false
-            rationaleLabel.isHidden = false
-            
-            badgeLabel.text = recommendation.action.rawValue
-            switch recommendation.action {
-            case .buy:
-                badgeLabel.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.15)
-                badgeLabel.textColor = .systemGreen
-            case .hold:
-                badgeLabel.backgroundColor = UIColor.systemGray5
-                badgeLabel.textColor = .label
-            case .sell:
-                badgeLabel.backgroundColor = UIColor.systemRed.withAlphaComponent(0.15)
-                badgeLabel.textColor = .systemRed
+struct StockDetailAIRecommendationView: View {
+    let state: StockDetailViewState.RecommendationState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Header row: title + badge
+            // In UIKit this was a UIStackView with a UIView() spacer between title and badge.
+            // In SwiftUI, Spacer() pushes the badge to the trailing edge.
+            HStack {
+                Text("AI Insight")
+                    .font(.system(size: 18, weight: .semibold))
+                Spacer()
+                if case .loaded(let rec) = state {
+                    badgeView(for: rec.action)
+                }
             }
-            
-            let confidencePercent = Int(recommendation.confidence * 100)
-            confidenceLabel.text = "Confidence: \(confidencePercent)%"
-            rationaleLabel.text = recommendation.rationale
+
+            // In UIKit, we toggled isHidden on multiple labels.
+            // In SwiftUI, we use switch — only the matching case renders.
+            switch state {
+            case .loading:
+                Text("Fetching AI-powered recommendation…")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+
+            case .failed(let message):
+                Text("AI recommendation unavailable: \(message)")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+
+            case .loaded(let recommendation):
+                Text("Confidence: \(Int(recommendation.confidence * 100))%")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+                Text(recommendation.rationale)
+                    .font(.system(size: 14))
+            }
+
+            Text("This AI-generated view is for informational purposes only and is not financial advice.")
+                .font(.system(size: 11))
+                .foregroundStyle(.tertiary)
         }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(.secondarySystemBackground))
+        )
+        .padding(.horizontal, 8)
+    }
+
+    @ViewBuilder
+    private func badgeView(for action: StockRecommendationAction) -> some View {
+        let (bgColor, fgColor): (Color, Color) = {
+            switch action {
+            case .buy: return (Color.green.opacity(0.15), .green)
+            case .hold: return (Color(.systemGray5), Color.primary)
+            case .sell: return (Color.red.opacity(0.15), .red)
+            }
+        }()
+
+        Text(action.rawValue)
+            .font(.system(size: 14, weight: .bold))
+            .padding(.horizontal, 10)
+            .frame(minWidth: 60, minHeight: 24)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(bgColor)
+            )
+            .foregroundStyle(fgColor)
     }
 }
-
-
