@@ -18,26 +18,18 @@ struct StockSearchView: View {
 
     var body: some View {
         Group {
-            switch viewModel.viewState.state {
+            switch viewModel.viewState {
             case .initial:
                 EmptyStateView(message: "Search for a company or ticker symbol")
 
             case .loading:
                 LoadingStateView()
 
-            case .results:
-                List(viewModel.viewState.symbols, id: \.symbol) { symbol in
-                    NavigationLink(value: symbol) {
-                        SearchSymbolRow(symbolResult: symbol)
-                    }
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets())
-                }
-                .listStyle(.plain)
-                .scrollDismissesKeyboard(.interactively)
+            case .results(let symbols):
+                resultsListView(symbols: symbols)
 
-            case .empty(let message):
-                EmptyStateView(message: "No results found for \"\(message)\"")
+            case .empty(let query):
+                EmptyStateView(message: "No results found for \"\(query)\"")
 
             case .error(let message):
                 ErrorStateView(message: message)
@@ -52,5 +44,18 @@ struct StockSearchView: View {
             StockDetailScreen(symbol: symbol.symbol)
                 .navigationTitle(symbol.description)
         }
+    }
+    
+    @ViewBuilder
+    private func resultsListView(symbols: [SymbolResult]) -> some View {
+        List(symbols, id: \.symbol) { symbol in
+            NavigationLink(value: symbol) {
+                SearchSymbolRow(symbolResult: symbol)
+            }
+            .listRowSeparator(.hidden)
+            .listRowInsets(.init())
+        }
+        .listStyle(.plain)
+        .scrollDismissesKeyboard(.interactively)
     }
 }

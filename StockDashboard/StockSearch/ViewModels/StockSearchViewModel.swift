@@ -6,109 +6,42 @@
 //
 
 import Foundation
-import Combine
 
 @MainActor
 class StockSearchViewModel: ObservableObject {
-   
-    @Published private var viewState: StockSearchViewState = .initial
-    @Published private var searchQuery = ""
-    
-    private var searchResults: [SymbolResult] = []
-    
+
+    @Published private(set) var viewState: StockSearchViewState = .initial
+
     private let stockService: StockServiceProtocol
-    
-    private var cancellables = Set<AnyCancellable>()
-    
     private var searchTask: Task<Void, Never>?
-    
-    // Debounce delay for search queries
-    private let searchDebounceDelay: TimeInterval = 0.5
-    
+
     init(stockService: StockServiceProtocol = StockService()) {
         self.stockService = stockService
-        setupBindings()
     }
-    
+
     func setSearchQuery(_ query: String) {
-        searchQuery = query
-    }
-    
-    private func setupBindings() {
-        $searchQuery
-            .removeDuplicates()
-            .sink { [weak self] query in
-                guard let self = self else { return }
-                if query.isEmpty {
-                    self.searchTask?.cancel()
-                    self.searchTask = nil
-                }
-                self.updateViewStateWithQuery(query)
-            }
-            .store(in: &cancellables)
-        
-        // Debounce search for API calls
-        $searchQuery
-            .removeDuplicates()
-            .debounce(for: .seconds(searchDebounceDelay), scheduler: RunLoop.main)
-            .filter { !$0.isEmpty }
-            .sink { [weak self] query in
-                self?.searchSymbols(query: query)
-            }
-            .store(in: &cancellables)
-    }
-    
-    private func searchSymbols(query: String) {
         searchTask?.cancel()
+        
+        guard !query.isEmpty else {
+            viewState = .initial
+            return
+        }
+
         searchTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            guard !Task.isCancelled else { return }
+
+            viewState = .loading
+
             do {
-                try Task.checkCancellation()
-                
-                updateViewStateToLoading()
-                
-                try Task.checkCancellation()
-                
                 let symbols = try await stockService.searchSymbols(query: query)
-                
-                try Task.checkCancellation()
-                
-                searchResults = symbols
-                updateViewStateWithSymbols(symbols)
-                
+                guard !Task.isCancelled else { return }
+                viewState = symbols.isEmpty ? .empty(query: query) : .results(symbols)
             } catch {
-                if Task.isCancelled { return }
+                guard !Task.isCancelled else { return }
                 if (error as? URLError)?.code == .cancelled { return }
-                updateViewStateWithError(error.localizedDescription)
+                viewState = .error(error.localizedDescription)
             }
         }
-    }
-    
-    private func updateViewStateWithQuery(_ query: String) {
-        var newState = viewState
-        newState.updateSearchQuery(query)
-        viewState = newState
-    }
-    
-    private func updateViewStateWithSymbols(_ symbols: [SymbolResult]) {
-        var newState = viewState
-        newState.updateWithSymbols(symbols)
-        viewState = newState
-    }
-    
-    private func updateViewStateWithError(_ errorMessage: String) {
-        var newState = viewState
-        newState.updateWithError(errorMessage)
-        viewState = newState
-    }
-    
-    private func updateViewStateToLoading() {
-        var newState = viewState
-        newState.updateToLoadingState()
-        viewState = newState
-    }
-    
-    private func resetToInitialState() {
-        searchResults = []
-        viewState = .initial
     }
 }

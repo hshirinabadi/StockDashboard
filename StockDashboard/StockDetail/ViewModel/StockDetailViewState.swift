@@ -5,45 +5,38 @@
 //  Created by Hossein Shirinabadi on 11/14/25.
 //
 
-struct StockDetailViewState {
-    enum State: Equatable {
-        case loading
-        case loaded
-        case error(message: String)
-    }
-    
-    enum RecommendationState: Equatable {
-        case loading
-        case loaded(StockRecommendation)
-        case failed(String)
-    }
-    
-    var state: State
-    var symbol: String
-    var quote: Quote?
-    var companyProfile: CompanyProfile?
-    var news: [NewsArticle]
-    var recommendationState: RecommendationState
+import Foundation
 
-    static func initial(symbol: String) -> StockDetailViewState {
-        return StockDetailViewState(
-            state: .loading,
-            symbol: symbol,
-            quote: nil,
-            companyProfile: nil,
-            news: [],
-            recommendationState: .loading
-        )
+enum StockDetailViewState {
+    case loading
+    case loaded([StockDetailSection])
+    case error(String)
+}
+
+enum StockDetailSection: Identifiable {
+    case header(symbol: String, companyName: String?)
+    case quote(quote: Quote, exchange: String?, currency: String?)
+    case aiRecommendation(AIRecommendationState)
+    case companyInfo(title: String, items: [(title: String, value: String)])
+    case keyStats(title: String, stats: [(label: String, value: String)])
+    case newsHeader
+    case newsArticle(NewsArticle)
+
+    var id: String {
+        switch self {
+        case .header: return "header"
+        case .quote: return "quote"
+        case .aiRecommendation: return "ai-recommendation"
+        case .companyInfo: return "company-info"
+        case .keyStats: return "key-stats"
+        case .newsHeader: return "news-header"
+        case .newsArticle(let article): return "news-\(article.id)"
+        }
     }
-    
-    mutating func updateWithResults(_ quote: Quote, _ profile: CompanyProfile, news: [NewsArticle]) {
-        self.quote = quote
-        self.companyProfile = profile
-        self.news = news
-        self.state = .loaded
-    }
-    
-    mutating func updateWithError(_ message: String) {
-        self.state = .error(message: message)
-    }
+}
+
+enum AIRecommendationState: Equatable {
+    case loading
+    case loaded(StockRecommendation)
+    case failed(String)
 }

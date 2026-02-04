@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct StockDetailAIRecommendationView: View {
-    let state: StockDetailViewState.RecommendationState
-
+    let state: AIRecommendationState
+    
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Header row: title + badge

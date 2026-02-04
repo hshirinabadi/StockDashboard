@@ -13,6 +13,7 @@ struct StockDetailNewsRowView: View {
     var body: some View {
         // In UIKit, tapping used UITapGestureRecognizer + @objc handler + tapHandler closure.
         // In SwiftUI, Link opens a URL directly — no gesture recognizer needed.
+        
         Link(destination: URL(string: article.url)!) {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 8) {
@@ -20,6 +21,8 @@ struct StockDetailNewsRowView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.primary)
                         .lineLimit(4)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     Spacer()
 
@@ -46,8 +49,12 @@ struct StockDetailNewsRowView: View {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(Color(.secondarySystemBackground))
             )
+            .onTapGesture {
+                <#code#>
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 5)
     }
+    
 }
