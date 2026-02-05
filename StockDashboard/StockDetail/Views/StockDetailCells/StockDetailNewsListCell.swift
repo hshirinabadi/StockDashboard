@@ -49,9 +49,6 @@ struct StockDetailNewsRowView: View {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(Color(.secondarySystemBackground))
             )
-            .onTapGesture {
-                <#code#>
-            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 5)

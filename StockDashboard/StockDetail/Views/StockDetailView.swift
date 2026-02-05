@@ -25,7 +25,7 @@ struct StockDetailScreen: View {
 
             case .loaded(let sections):
                 ScrollView {
-                    LazyVStack(spacing: 20) {
+                    LazyVStack(spacing: 10) {
                         ForEach(sections) { section in
                             sectionView(for: section)
                         }
